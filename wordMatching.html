@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <style>
+        </style>
+
+    </head>
+    <body>
+        <div id="windiv" style="width: 100%; height: 100%; margin: 0px; left: 0; top: 0; z-index: 999;  position: absolute; display: none; background-color: beige;"> 
+            <div style="font-size: 200px;text-align: center;color: red;">You Won!!!</div>
+            <div id="topScoreEnd" style="font-size: 40px;text-align: center;"></div>
+        </div>
+        <div>
+            <label id="baseString"></label>
+            <input id="gussedWord" type="text" />
+            <input id="checkword" type="button" value="check" onclick="checkGuessedWord()"/>
+            <input type="hidden" value="wordlist.txt" id="textfield" onclick="loadFile()" />
+
+            <div id="messages" style="width: 100px; height: 50px;"></div>
+            <div id="score" style="width: 100px; height: 50px;"></div>
+            <div id="topScore" style="width: 100px; height: 200px;"></div>
+
+
+            <!--<input type="file" value="wordlist.txt"/>-->
+        </div>
+
+        <script>
+            var wordList = ["aa", "aah"];
+            var topScorer = {};
+            var usedWords = [];
+            var score = 0;
+            var baseString = "";
+            var gameFinished = false;
+            function generateString() {
+                var text = "";
+                var possible = "abcdefghijklmnopqrstuvwxyz";
+
+                var limit = Math.floor(Math.random() * (15 - 7 + 1)) + 7;
+
+                for (var i = 0; i < limit; i++)
+                    text += possible.charAt(Math.floor(Math.random() * possible.length));
+                //console.log (text.length);
+
+                return text;
+
+            }
+            var reader = new XMLHttpRequest() || new ActiveXObject('MSXML2.XMLHTTP');
+            window.onload = function() {
+                document.getElementById("textfield").onclick();
+            };
+            function loadFile() {
+                reader.open('get', 'wordlist.txt', true);
+                reader.onreadystatechange = displayContents;
+                reader.send(null);
+
+            }
+            function displayContents() {
+                if (reader.readyState == 4) {
+                    wordList = reader.responseText.split('\n');
+                }
+            }
+
+            baseString = generateString();
+            document.getElementById("baseString").innerHTML = baseString;
+
+            function checkGuessedWord() {
+
+                var guessedWord = "";
+                var topScorerdiv = "";
+                guessedWord = document.getElementById("gussedWord").value;
+                if (usedWords.indexOf(guessedWord) >= 0) {
+                    document.getElementById("messages").innerHTML = "Already matched";
+                    return 0;
+                }
+                for (var i = 0; i <= guessedWord.length; i++) {
+                    console.log("working");
+                    if (baseString.indexOf(guessedWord.charAt(i)) == -1) {
+                        document.getElementById("messages").innerHTML = "letter not matched";
+                        return 0;
+                    }
+                }
+                if (wordList.indexOf(guessedWord) == -1) {
+                    document.getElementById("messages").innerHTML = "word not matched";
+                    return 0;
+                }
+                usedWords.push(guessedWord);
+                console.log(topScorer, Object.size(topScorer));
+
+                score += guessedWord.length;
+                document.getElementById("score").innerHTML = "Score: " + score;
+                if (Object.size(topScorer) < 1) {
+                    topScorer[guessedWord] = guessedWord.length;
+                    console.log(topScorer, topScorer.length);
+                } else {
+                    topScorer[guessedWord] = guessedWord.length;
+                    gameFinished = true;
+                }
+                for (var key in topScorer) {
+                    if (topScorer.hasOwnProperty(key)) {
+                        topScorerdiv += key + " : " + topScorer[key] + "<br>";
+                    }
+                }
+                document.getElementById("topScore").innerHTML = topScorerdiv;
+                if (gameFinished) {
+                    document.getElementById("windiv").style.display = 'block';
+                    document.getElementById("topScoreEnd").innerHTML = topScorerdiv;
+                }
+            }
+
+            Object.size = function(obj) {
+                var size = 0, key;
+                for (key in obj) {
+                    if (obj.hasOwnProperty(key))
+                        size++;
+                }
+                return size;
+            };
+
+        </script>
+    </body>
+</html>
